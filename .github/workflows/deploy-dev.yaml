@@ -1,0 +1,54 @@
+name: Deploy SS to Dev
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "Pull Request Number"
+        required: true
+      comment_id:
+        description: "Comment ID"
+        required: true
+      pr_sha:
+        description: "PR SHA"
+        required: true
+      pr_branch:
+        description: "PR Branch"
+        required: true
+      instance:
+        description: "Instance of IB2 that we want to deploy to"
+        required: true
+
+jobs:
+  GetData:
+    runs-on: ubuntu-latest
+    environment:
+      name: dev
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get PR information
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { execSync } = require('child_process');
+            const command = `git fetch origin techDebt/HC-3964 && git checkout techDebt/HC-3964`;
+            try {
+              const result = execSync(command, { encoding: 'utf8' });
+              console.log('Checkout result:', result);
+            } catch (error) {
+              console.error('Checkout error:', error);
+              throw error;
+            }
+        env:
+          PR_NUMBER: ${{ github.event.inputs.pr_number }}
+
+      - name: Show Gathered Data
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        shell: bash
+        run: |
+          echo ${process.env.pr_number}
+          echo ${process.env.comment_id}
+          echo ${process.env.pr_sha}
+          echo ${process.env.pr_branch}
+          echo ${process.env.instance}

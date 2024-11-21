@@ -1,0 +1,74 @@
+name: PR Comment Deployment Handler
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  pull-requests: write
+  issues: write
+  contents: read
+  actions: write
+
+jobs:
+  process_comment:
+    if: ${{ github.event.issue.pull_request }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get PR Details
+        id: pr_details
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pull = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+
+            console.log(`PR Branch: ${pull.data.head.ref}`);
+            console.log(`PR SHA: ${pull.data.head.sha}`);
+
+            return {
+              branch: pull.data.head.ref,
+              sha: pull.data.head.sha,
+              repo: pull.data.head.repo.full_name
+            }
+
+      - name: Check comment
+        id: check_comment
+        env:
+          COMMENT_BODY: ${{ github.event.comment.body }}
+        run: |
+          if [[ "$COMMENT_BODY" == "/deploySS" ]]; then
+            echo "trigger=true" >> $GITHUB_OUTPUT
+            echo "instance=salesSupport" >> $GITHUB_OUTPUT
+          elif [[ "$COMMENT_BODY" == "/deployIO" ]]; then
+            echo "trigger=true" >> $GITHUB_OUTPUT
+            echo "instance=inboundOut" >> $GITHUB_OUTPUT
+          elif [[ "$COMMENT_BODY" == "/deployFI" ]]; then
+            echo "trigger=true" >> $GITHUB_OUTPUT
+            echo "instance=fiji" >> $GITHUB_OUTPUT
+          else
+            echo "trigger=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Trigger integration workflow
+        if: steps.check_comment.outputs.trigger == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prDetails = JSON.parse('${{ steps.pr_details.outputs.result }}');
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'deploy-dev.yaml',
+              ref: prDetails.branch,
+              inputs: {
+                pr_number: context.issue.number.toString(),
+                comment_id: context.payload.comment.id.toString(),
+                pr_sha: prDetails.sha,
+                pr_branch: prDetails.branch
+                instance: steps.check_comment.outputs.instance
+              }
+            })
