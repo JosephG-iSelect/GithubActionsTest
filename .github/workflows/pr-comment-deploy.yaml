@@ -68,7 +68,7 @@ jobs:
                 pr_number: context.issue.number.toString(),
                 comment_id: context.payload.comment.id.toString(),
                 pr_sha: prDetails.sha,
-                pr_branch: prDetails.branch
-                instance: steps.check_comment.outputs.instance
+                pr_branch: prDetails.branch,
+                instance: `${{ steps.check_comment.outputs.instance }}`
               }
             })
