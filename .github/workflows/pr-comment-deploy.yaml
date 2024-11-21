@@ -39,6 +39,7 @@ jobs:
         env:
           COMMENT_BODY: ${{ github.event.comment.body }}
         run: |
+          shopt -s nocasematch  # Enable case-insensitive matching
           if [[ "$COMMENT_BODY" == "/deploySS" ]]; then
             echo "trigger=true" >> $GITHUB_OUTPUT
             echo "instance=salesSupport" >> $GITHUB_OUTPUT
@@ -51,6 +52,7 @@ jobs:
           else
             echo "trigger=false" >> $GITHUB_OUTPUT
           fi
+          shopt -u nocasematch  # Disable case-insensitive matching
 
       - name: Trigger integration workflow
         if: steps.check_comment.outputs.trigger == 'true'
