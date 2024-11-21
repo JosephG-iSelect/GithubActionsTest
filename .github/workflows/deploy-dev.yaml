@@ -2,15 +2,6 @@ name: Deploy to Dev Instance
 on:
   workflow_dispatch:
     inputs:
-      pr_number:
-        description: "Pull Request Number"
-        required: true
-      comment_id:
-        description: "Comment ID"
-        required: true
-      pr_sha:
-        description: "PR SHA"
-        required: true
       pr_branch:
         description: "PR Branch"
         required: true
@@ -40,8 +31,6 @@ jobs:
               console.error('Checkout error:', error);
               throw error;
             }
-        env:
-          PR_NUMBER: ${{ github.event.inputs.pr_number }}
 
       - name: Show Gathered Data
         shell: bash
