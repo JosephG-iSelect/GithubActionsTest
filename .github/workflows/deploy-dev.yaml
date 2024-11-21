@@ -1,4 +1,4 @@
-name: Deploy SS to Dev
+name: Deploy to Dev Instance
 on:
   workflow_dispatch:
     inputs:
@@ -31,7 +31,7 @@ jobs:
         with:
           script: |
             const { execSync } = require('child_process');
-            const command = `git fetch origin techDebt/HC-3964 && git checkout techDebt/HC-3964`;
+            const command = `git fetch origin ${process.env.PR_BRANCH} && git checkout ${process.env.PR_BRANCH}`;
             try {
               const result = execSync(command, { encoding: 'utf8' });
               console.log('Checkout result:', result);
