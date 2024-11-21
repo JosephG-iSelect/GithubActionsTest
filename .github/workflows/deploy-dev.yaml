@@ -40,3 +40,11 @@ jobs:
           echo "PR SHA: ${{ github.event.inputs.pr_sha }}"
           echo "PR Branch: ${{ github.event.inputs.pr_branch }}"
           echo "Instance: ${{ github.event.inputs.instance }}"
+          const prBranch = '${{ github.event.inputs.instance }}'
+          if [[ "$prBranch" == "salesSupport" ]]; then 
+            echo "THIS IS salesSupport"
+          elif [[ "$prBranch" == "fiji" ]]; then
+            echo "THIS IS fiji"
+          else
+            echo "THIS IS default IO"
+          fi
