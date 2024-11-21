@@ -31,7 +31,7 @@ jobs:
         with:
           script: |
             const { execSync } = require('child_process');
-            const command = `git fetch origin ${process.env.PR_BRANCH} && git checkout ${process.env.PR_BRANCH}`;
+            const command = `git fetch origin ${process.env.pr_branch} && git checkout ${process.env.pr_branch}`;
             try {
               const result = execSync(command, { encoding: 'utf8' });
               console.log('Checkout result:', result);
