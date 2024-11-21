@@ -51,17 +51,3 @@ jobs:
           echo "PR SHA: ${{ github.event.inputs.pr_sha }}"
           echo "PR Branch: ${{ github.event.inputs.pr_branch }}"
           echo "Instance: ${{ github.event.inputs.instance }}"
-
-      - name: Update deployment status
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const instance = '${{ github.event.inputs.instance }}';
-            const prNumber = '${{ github.event.inputs.pr_number }}';
-            
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: parseInt(prNumber),
-              body: `🚀 Deployed to dev environment: ${instance}`
-            });
