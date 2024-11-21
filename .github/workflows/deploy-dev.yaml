@@ -34,16 +34,17 @@ jobs:
 
       - name: Show Gathered Data
         shell: bash
+        env:
+          INSTANCE: ${{ github.event.inputs.instance }}
         run: |
           echo "PR Number: ${{ github.event.inputs.pr_number }}"
           echo "Comment ID: ${{ github.event.inputs.comment_id }}"
           echo "PR SHA: ${{ github.event.inputs.pr_sha }}"
           echo "PR Branch: ${{ github.event.inputs.pr_branch }}"
-          echo "Instance: ${{ github.event.inputs.instance }}"
-          const prBranch = '${{ github.event.inputs.instance }}'
-          if [[ "$prBranch" == "salesSupport" ]]; then 
+          echo "Instance: $INSTANCE"
+          if [[ "$INSTANCE" == "salesSupport" ]]; then 
             echo "THIS IS salesSupport"
-          elif [[ "$prBranch" == "fiji" ]]; then
+          elif [[ "$INSTANCE" == "fiji" ]]; then
             echo "THIS IS fiji"
           else
             echo "THIS IS default IO"
