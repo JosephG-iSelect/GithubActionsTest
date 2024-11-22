@@ -1,0 +1,30 @@
+name: Manual Deployment
+on:
+  workflow_dispatch:
+    inputs:
+      instance:
+        type: choice
+        description: "Select deployment instance"
+        options:
+          - "Fiji"
+          - "SalesSupport"
+        required: true
+      branch_name:
+        type: string
+        description: "Branch Name"
+        required: true
+
+jobs:
+  RunAction:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch_name }}
+          
+      - name: Get branch info
+        run: |
+          echo "Current branch name: $(git branch --show-current)"
+          echo "Full branch info: $(git status)"
+          echo "Recent commits: $(git log -3 --oneline)"
