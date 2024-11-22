@@ -15,32 +15,19 @@ jobs:
     environment:
       name: dev
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Get PR information
-        uses: actions/github-script@v7
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
-          script: |
-            const { execSync } = require('child_process');
-            const prBranch = '${{ github.event.inputs.pr_branch }}';
-            const command = `git fetch origin ${prBranch} && git checkout ${prBranch}`;
-            try {
-              const result = execSync(command, { encoding: 'utf8' });
-              console.log('Checkout result:', result);
-            } catch (error) {
-              console.error('Checkout error:', error);
-              throw error;
-            }
+          ref: ${{ github.event.inputs.pr_branch }}
 
       - name: Show Gathered Data
         shell: bash
         env:
           INSTANCE: ${{ github.event.inputs.instance }}
         run: |
-          echo "PR Number: ${{ github.event.inputs.pr_number }}"
-          echo "Comment ID: ${{ github.event.inputs.comment_id }}"
-          echo "PR SHA: ${{ github.event.inputs.pr_sha }}"
-          echo "PR Branch: ${{ github.event.inputs.pr_branch }}"
+          echo "Current branch name: $(git branch --show-current)"
+          echo "Full branch info: $(git status)"
+          echo "Recent commits: $(git log -3 --oneline)"
           echo "Instance: $INSTANCE"
           if [[ "$INSTANCE" == "salesSupport" ]]; then 
             echo "THIS IS salesSupport"
