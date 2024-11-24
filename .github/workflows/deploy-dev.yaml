@@ -17,12 +17,13 @@ jobs:
       - name: Validate branch name
         run: |
           if ! [[ "${{ github.event.inputs.pr_branch }}" =~ (?i)^(feature|bugfix|techdebt)/.* ]]; then
-            echo "Invalid branch name. Must start with feature/, bugfix/, or techdebt/"
+            echo "::error::Invalid branch name. Must start with feature/, bugfix/, or techdebt/"
             exit 1
           fi
 
   GetData:
     name: Build Docker Image for ${{ github.event.inputs.instance }}
+    needs: validate
     runs-on: ubuntu-latest
     environment:
       name: dev
