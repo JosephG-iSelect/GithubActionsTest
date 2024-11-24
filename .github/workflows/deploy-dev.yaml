@@ -17,9 +17,8 @@ jobs:
       - name: Validate branch name
         run: |
           branch="${{ github.event.inputs.pr_branch }}"
-          pattern="(?i)^(feature|bugfix|techdebt)\/.*$"
-          if ! [[ $branch =~ $pattern ]]; then
-            echo "::error::Invalid branch name '$branch'. Must start with feature/, bugfix/, or techdebt/"
+          if ! [[ "${branch,,}" =~ ^(feature|bugfix|techdebt)/.* ]]; then
+            echo "::error::Invalid branch name. Must start with feature/, bugfix/, or techdebt/"
             exit 1
           fi
 
