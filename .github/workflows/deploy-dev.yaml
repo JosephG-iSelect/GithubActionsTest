@@ -2,15 +2,6 @@ name: Deploy to Dev Instance
 on:
   workflow_dispatch:
     inputs:
-      pr_number:
-        description: "Pull Request Number"
-        required: true
-      comment_id:
-        description: "Comment ID"
-        required: true
-      pr_sha:
-        description: "PR SHA"
-        required: true
       pr_branch:
         description: "PR Branch"
         required: true
@@ -19,35 +10,42 @@ on:
         required: true
 
 jobs:
+  validate:
+    name: Validating Branch Name
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate branch name
+        run: |
+          if ! [[ "${{ github.event.inputs.pr_branch }}" =~ (?i)^(feature|bugfix|techdebt)/.* ]]; then
+            echo "::error::Invalid branch name. Must start with feature/, bugfix/, or techdebt/"
+            exit 1
+          fi
+
   GetData:
+    name: Build Docker Image for ${{ github.event.inputs.instance }}
+    needs: validate
     runs-on: ubuntu-latest
     environment:
       name: dev
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Get PR information
-        uses: actions/github-script@v7
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
-          script: |
-            const { execSync } = require('child_process');
-            const prBranch = '${{ github.event.inputs.pr_branch }}';
-            const command = `git fetch origin ${prBranch} && git checkout ${prBranch}`;
-            try {
-              const result = execSync(command, { encoding: 'utf8' });
-              console.log('Checkout result:', result);
-            } catch (error) {
-              console.error('Checkout error:', error);
-              throw error;
-            }
-        env:
-          PR_NUMBER: ${{ github.event.inputs.pr_number }}
+          ref: ${{ github.event.inputs.pr_branch }}
 
       - name: Show Gathered Data
         shell: bash
+        env:
+          INSTANCE: ${{ github.event.inputs.instance }}
         run: |
-          echo "PR Number: ${{ github.event.inputs.pr_number }}"
-          echo "Comment ID: ${{ github.event.inputs.comment_id }}"
-          echo "PR SHA: ${{ github.event.inputs.pr_sha }}"
-          echo "PR Branch: ${{ github.event.inputs.pr_branch }}"
-          echo "Instance: ${{ github.event.inputs.instance }}"
+          echo "Current branch name: $(git branch --show-current)"
+          echo "Full branch info: $(git status)"
+          echo "Recent commits: $(git log -3 --oneline)"
+          echo "Instance: $INSTANCE"
+          if [[ "$INSTANCE" == "salesSupport" ]]; then 
+            echo "THIS IS salesSupport"
+          elif [[ "$INSTANCE" == "fiji" ]]; then
+            echo "THIS IS fiji"
+          else
+            echo "THIS IS default IO"
+          fi
