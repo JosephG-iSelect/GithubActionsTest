@@ -22,7 +22,7 @@ jobs:
           fi
 
   GetData:
-    name: Build Docker Image for ${{ github.event.inputs.instance }}
+    name: Build Docker Image for instance - ${{ github.event.inputs.instance }}
     needs: validate
     runs-on: ubuntu-latest
     environment:
